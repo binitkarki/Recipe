@@ -1,5 +1,6 @@
 from pathlib import Path
-
+import os
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -11,9 +12,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ottu#s#9950=u%-b1*18dg!hy+k@x+c=^o728(7i_&0uz)%8wp'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True" 
+SECRET_KEY = os.getenv("SECRET_KEY", "change-this-in-render")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else ["*"]
+
 
 
 # Application definition
@@ -44,17 +47,21 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+
+     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  
+    os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if os.getenv("CORS_ALLOWED_ORIGINS") else [],  
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -93,6 +100,11 @@ WSGI_APPLICATION = 'server.wsgi.application'
 
 
 # Database
+
+DATABASES = {
+    "default": dj_database_url.parse(os.getenv("DATABASE_URL", "sqlite:///db.sqlite3"))
+}
+
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
