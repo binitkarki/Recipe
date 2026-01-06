@@ -42,6 +42,9 @@ MIDDLEWARE = [
 cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
 CORS_ALLOWED_ORIGINS = cors_origins.split(",") if cors_origins else []
 CORS_ALLOW_ALL_ORIGINS = False  # safer default
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else ["*"]
+
+
 
 # Static & Media
 STATIC_URL = "static/"
