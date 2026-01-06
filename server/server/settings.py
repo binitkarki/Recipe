@@ -31,11 +31,13 @@ INSTALLED_APPS = [
 
     "rest_framework",
     "corsheaders",
-     'django_filters',
+    "django_filters",
 
 
     "accounts",
     "recipes",
+
+    "django.contrib.staticfiles",
 ]
 
 MIDDLEWARE = [
@@ -55,7 +57,6 @@ MIDDLEWARE = [
 
 
 CORS_ALLOWED_ORIGINS = [
-    os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if os.getenv("CORS_ALLOWED_ORIGINS") else [],  
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
