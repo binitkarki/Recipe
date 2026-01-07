@@ -9,8 +9,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "change-this-in-render")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
-    "recipe-kczx.onrender.com",
-    "recipe-sigma-blond.vercel.app",
+    "recipe-kczx.onrender.com",          # Render backend
+    "recipe-sigma-blond.vercel.app",     # Vercel frontend
 ]
 
 # Applications
@@ -30,9 +30,9 @@ INSTALLED_APPS = [
     "recipes",
 ]
 
-
+# Middleware — CorsMiddleware must be at the very top
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",          # must be first
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -43,16 +43,16 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-
-
+# CORS / CSRF
 CORS_ALLOWED_ORIGINS = [
-    "https://recipe-sigma-blond.vercel.app", # Vercel frontend
+    "https://recipe-sigma-blond.vercel.app",  # production frontend
+    "https://*.vercel.app",                   # allow preview deployments
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://recipe-sigma-blond.vercel.app",
+    "https://*.vercel.app",
 ]
-
 
 CORS_ALLOW_HEADERS = [
     "authorization",
@@ -61,8 +61,7 @@ CORS_ALLOW_HEADERS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-
-
+# Static / Media
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -70,13 +69,13 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-
+# Django REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",  # allow public access by default
     ],
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -84,7 +83,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-
+# Templates
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -104,28 +103,15 @@ TEMPLATES = [
 ROOT_URLCONF = "server.urls"
 WSGI_APPLICATION = "server.wsgi.application"
 
-
+# Database
 DATABASES = {
     "default": dj_database_url.parse(
         os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3")
     )
 }
 
-
+# Internationalization
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
-
-
-
-
-
-
-
-
-
-
-
-
-
