@@ -7,7 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security
 SECRET_KEY = os.getenv("SECRET_KEY", "change-this-in-render")
 DEBUG = os.getenv("DEBUG", "False") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else ["*"]
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 # Applications
 INSTALLED_APPS = [
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     "recipes",
 ]
 
+# Middleware (CORRECT ORDER)
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -38,23 +40,44 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# CORS
-cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
-CORS_ALLOWED_ORIGINS = cors_origins.split(",") if cors_origins else []
-CORS_ALLOW_ALL_ORIGINS = False  # safer default
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else ["*"]
+# ======================
+# CORS & CSRF SETTINGS
+# ======================
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",                 # Vite dev server
+    "https://recipe-sigma-blond.vercel.app", # Vercel frontend
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://recipe-sigma-blond.vercel.app",
+]
 
+# Allow JWT Authorization header
+CORS_ALLOW_HEADERS = [
+    "authorization",
+    "content-type",
+]
+
+# Only enable if using cookies/sessions
+CORS_ALLOW_CREDENTIALS = True
+
+# ======================
 # Static & Media
-STATIC_URL = "static/"
+# ======================
+
+STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# REST Framework
+# ======================
+# Django REST Framework
+# ======================
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -67,10 +90,12 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
     ],
 }
+
+# Templates
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # you can leave this empty or point to a templates folder
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -88,16 +113,10 @@ WSGI_APPLICATION = "server.wsgi.application"
 
 # Database
 DATABASES = {
-    "default": dj_database_url.parse(os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3"))
+    "default": dj_database_url.parse(
+        os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3")
+    )
 }
-
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
