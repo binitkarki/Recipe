@@ -1,7 +1,8 @@
 import axios from "axios";
 
+// Use environment variable for API base URL
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: import.meta.env.VITE_API_URL, // e.g. https://recipe-kczx.onrender.com/api
 });
 
 // Attach access token to every request
@@ -23,7 +24,8 @@ api.interceptors.response.use(
 
       if (refresh) {
         try {
-          const res = await axios.post("http://127.0.0.1:8000/api/auth/login/refresh", {
+          // Use same baseURL for refresh endpoint
+          const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login/refresh`, {
             refresh,
           });
           const newAccess = res.data.access;
@@ -60,7 +62,7 @@ export const RecipesAPI = {
     api.get("/recipes/", {
       params: {
         ...(search ? { search } : {}),
-        ...(category ? { category: category.toLowerCase() } : {}), // force lowercase
+        ...(category ? { category: category.toLowerCase() } : {}),
       },
     }),
   detail: (id) => api.get(`/recipes/${id}/`),

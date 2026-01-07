@@ -4,7 +4,7 @@ import { getAuthHeader } from "../utils/AuthService";
 import RecipeCard from "../components/RecipeCard";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate, useLocation } from "react-router-dom";
-import "../styles/RecipeDetail.css"; // reuse back-arrow styling
+import "../styles/RecipeDetail.css"; 
 
 export default function Recipes() {
   const [recipes, setRecipes] = useState([]);
@@ -17,7 +17,7 @@ export default function Recipes() {
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/api/recipes/", {
+      .get(`${import.meta.env.VITE_API_URL}/recipes/`, {
         headers: getAuthHeader(),
         params: { search, category },
       })
