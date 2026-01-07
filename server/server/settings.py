@@ -8,7 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "change-this-in-render")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = [
+    "recipe-kczx.onrender.com",
+    "recipe-sigma-blond.vercel.app",
+]
 
 # Applications
 INSTALLED_APPS = [
@@ -27,7 +30,7 @@ INSTALLED_APPS = [
     "recipes",
 ]
 
-# Middleware (CORRECT ORDER)
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -40,32 +43,25 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# ======================
-# CORS & CSRF SETTINGS
-# ======================
+
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",                 # Vite dev server
     "https://recipe-sigma-blond.vercel.app", # Vercel frontend
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
     "https://recipe-sigma-blond.vercel.app",
 ]
 
-# Allow JWT Authorization header
+
 CORS_ALLOW_HEADERS = [
     "authorization",
     "content-type",
 ]
 
-# Only enable if using cookies/sessions
 CORS_ALLOW_CREDENTIALS = True
 
-# ======================
-# Static & Media
-# ======================
+
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
@@ -74,9 +70,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# ======================
-# Django REST Framework
-# ======================
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -91,7 +84,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Templates
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -111,15 +104,28 @@ TEMPLATES = [
 ROOT_URLCONF = "server.urls"
 WSGI_APPLICATION = "server.wsgi.application"
 
-# Database
+
 DATABASES = {
     "default": dj_database_url.parse(
         os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3")
     )
 }
 
-# Internationalization
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
+
+
+
+
+
+
+
+
+
+
+
+
