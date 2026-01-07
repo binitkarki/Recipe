@@ -14,8 +14,15 @@ export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // reusable fetch function
+  const fetchRecipes = () => {
+    RecipesAPI.list()
+      .then((res) => setRecipes(res.data))
+      .catch((err) => console.error("Failed to fetch recipes", err));
+  };
+
   useEffect(() => {
-    RecipesAPI.list().then((res) => setRecipes(res.data)).catch(() => {});
+    fetchRecipes();
   }, []);
 
   return (
@@ -38,7 +45,11 @@ export default function Home() {
       </div>
 
       {user && (
-        <button className="fab" title="Add new recipe" onClick={() => navigate("/create")}>
+        <button
+          className="fab"
+          title="Add new recipe"
+          onClick={() => navigate("/create")}
+        >
           +
         </button>
       )}

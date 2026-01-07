@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RecipesAPI } from "../utils/api";
-import { IoArrowBack } from "react-icons/io5";
 import "../styles/Forms.css";
 import "../styles/Modal.css";
 
@@ -109,8 +108,12 @@ export default function RecipeForm({ onSubmitted }) {
         await RecipesAPI.create(formData);
         alert("Recipe created successfully!");
       }
-      if (onSubmitted) onSubmitted();
-      else navigate(-1);
+      // 🔑 Trigger refresh if parent passed onSubmitted
+      if (onSubmitted) {
+        onSubmitted();
+      } else {
+        navigate(-1);
+      }
     } catch (err) {
       alert("Failed to save recipe: " + err.message);
     }

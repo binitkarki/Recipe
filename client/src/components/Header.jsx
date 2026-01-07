@@ -23,15 +23,25 @@ export default function Header() {
     }
   };
 
-  const openLogin = () => { setIsSignup(false); setShowAuth(true); };
+  const openLogin = () => { 
+    setIsSignup(false); 
+    setShowAuth(true); 
+  };
 
   const onAuthSubmit = async (username, password) => {
     try {
-      if (isSignup) await AuthAPI.register(username, password);
+      if (isSignup) {
+        await AuthAPI.register(username, password);
+      }
       const res = await AuthAPI.login(username, password);
-      login({ username, access: res.data.access });
+      // ✅ Pass both access and refresh tokens to AuthContext
+      login({ 
+        username, 
+        access: res.data.access, 
+        refresh: res.data.refresh 
+      });
       setShowAuth(false);
-    } catch {
+    } catch (err) {
       alert("Authentication failed");
     }
   };

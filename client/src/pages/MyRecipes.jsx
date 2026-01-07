@@ -15,15 +15,30 @@ export default function MyRecipes() {
   const [recipes, setRecipes] = useState([]);
   const navigate = useNavigate();
 
+  // reusable fetch function
+  const fetchMyRecipes = () => {
+    RecipesAPI.mine()
+      .then((res) => setRecipes(res.data))
+      .catch((err) => console.error("Failed to fetch recipes", err));
+  };
+
   useEffect(() => {
-    if (!accessToken) { navigate("/"); return; }
-    RecipesAPI.mine().then((res) => setRecipes(res.data)).catch(() => {});
+    if (!accessToken) {
+      navigate("/");
+      return;
+    }
+    fetchMyRecipes();
   }, [accessToken, navigate]);
 
   const onDelete = async (id) => {
     if (!window.confirm("Delete this recipe?")) return;
-    await RecipesAPI.remove(id);
-    setRecipes((prev) => prev.filter((r) => r.id !== id));
+    try {
+      await RecipesAPI.remove(id);
+      // refresh list from backend to stay in sync
+      fetchMyRecipes();
+    } catch (err) {
+      console.error("Failed to delete recipe", err);
+    }
   };
 
   return (

@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Header from "./components/Header";
 import Home from "./pages/Home";
-import RecipeList from "./pages/RecipeList";
+import Recipes from "./pages/Recipes";          // ✅ align with your actual file name
 import RecipeDetail from "./pages/RecipeDetail";
 import MyRecipes from "./pages/MyRecipes";
 import Bookmarks from "./pages/Bookmarks";
@@ -18,7 +18,7 @@ export default function App() {
         <main className="container">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/recipes" element={<RecipeList />} />
+            <Route path="/recipes" element={<Recipes />} />       {/* ✅ updated */}
             <Route path="/recipes/:id" element={<RecipeDetail />} />
             <Route path="/create" element={<RecipeFormModal />} />
             <Route path="/my-recipes" element={<MyRecipes />} />

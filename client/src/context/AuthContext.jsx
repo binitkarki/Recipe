@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken") || null);
+  const [refreshToken, setRefreshToken] = useState(localStorage.getItem("refreshToken") || null);
 
   useEffect(() => {
     if (accessToken) {
@@ -16,22 +17,26 @@ export function AuthProvider({ children }) {
     }
   }, [accessToken]);
 
-  const login = ({ username, access }) => {
+  const login = ({ username, access, refresh }) => {
     localStorage.setItem("accessToken", access);
+    localStorage.setItem("refreshToken", refresh);
     localStorage.setItem("username", username);
     setAccessToken(access);
+    setRefreshToken(refresh);
     setUser({ username });
   };
 
   const logout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("username");
     setAccessToken(null);
+    setRefreshToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, login, logout }}>
+    <AuthContext.Provider value={{ user, accessToken, refreshToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

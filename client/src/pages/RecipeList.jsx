@@ -1,53 +1,49 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { RecipesAPI } from "../utils/api";
-import { IoIosTimer } from "react-icons/io";
-import { IoPeopleSharp, IoArrowBack } from "react-icons/io5";
-import { SiLevelsdotfyi } from "react-icons/si";
-import "../styles/Grid.css";
-import "../styles/RecipeDetail.css"; // reuse .back-arrow styling
+import axios from "axios";
+import { getAuthHeader } from "../utils/AuthService";
+import RecipeCard from "../components/RecipeCard";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate, useLocation } from "react-router-dom";
+import "../styles/RecipeDetail.css"; 
 
-export default function RecipeList() {
+export default function Recipes() {
   const [recipes, setRecipes] = useState([]);
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const params = new URLSearchParams(location.search);
   const search = params.get("search") || "";
   const category = params.get("category") || "";
 
-  useEffect(() => {
-    RecipesAPI.list(search, category)
+  // reusable fetch function
+  const fetchRecipes = () => {
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/recipes/`, {
+        headers: getAuthHeader(),
+        params: { search, category },
+      })
       .then((res) => setRecipes(res.data))
-      .catch(() => {});
+      .catch((err) => console.error(err));
+  };
+
+  useEffect(() => {
+    fetchRecipes();
   }, [search, category]);
 
   return (
-    <div>
+    <div style={{ maxWidth: "600px", margin: "20px auto" }}>
       <div className="list-header">
-        {/* Back arrow instead of text button */}
         <span className="back-arrow" onClick={() => navigate(-1)}>
           <IoArrowBack />
         </span>
-        <h2>
-          Results {search ? `for "${search}"` : ""} {category ? `in ${category}` : ""}
-        </h2>
+        <h2>Recipes</h2>
       </div>
 
-      <div className="grid grid-6">
-        {recipes.map((r) => (
-          <Link to={`/recipes/${r.id}`} className="image-card hover-zoom" key={r.id}>
-            <img src={r.image} alt={r.title} />
-            <div className="image-overlay">
-              <h4 className="overlay-title">{r.title}</h4>
-              <div className="overlay-meta icons">
-                <span><IoIosTimer /> {r.cooking_time} min</span>
-                <span><IoPeopleSharp /> {r.servings}</span>
-                <span><SiLevelsdotfyi /> {r.difficulty}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {recipes.length === 0 ? (
+        <p>No recipes yet.</p>
+      ) : (
+        recipes.map((r) => <RecipeCard key={r.id} recipe={r} />)
+      )}
     </div>
   );
 }

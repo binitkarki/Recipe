@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Use environment variable for API base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // e.g. https://recipe-kczx.onrender.com/api
+  baseURL: import.meta.env.VITE_API_URL, // e.g. https://recipe-ushn.onrender.com/api
 });
 
 // Attach access token to every request
@@ -24,8 +24,8 @@ api.interceptors.response.use(
 
       if (refresh) {
         try {
-          // Use same baseURL for refresh endpoint
-          const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login/refresh`, {
+          // Use same baseURL for refresh endpoint (with trailing slash)
+          const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login/refresh/`, {
             refresh,
           });
           const newAccess = res.data.access;
@@ -47,14 +47,14 @@ api.interceptors.response.use(
 
 export const AuthAPI = {
   login: async (username, password) => {
-    const res = await api.post("/auth/login", { username, password });
+    const res = await api.post("/auth/login/", { username, password });
     // Save both access and refresh tokens
     localStorage.setItem("accessToken", res.data.access);
     localStorage.setItem("refreshToken", res.data.refresh);
     return res;
   },
   register: (username, password) =>
-    api.post("/auth/register", { username, password }),
+    api.post("/auth/register/", { username, password }),
 };
 
 export const RecipesAPI = {
@@ -87,8 +87,8 @@ export const BookmarksAPI = {
 };
 
 export const CommentsAPI = {
-  list: (recipeId) => api.get(`/recipes/${recipeId}/comments`),
-  add: (recipeId, text) => api.post(`/recipes/${recipeId}/comments`, { text }),
+  list: (recipeId) => api.get(`/recipes/${recipeId}/comments/`),
+  add: (recipeId, text) => api.post(`/recipes/${recipeId}/comments/`, { text }),
 };
 
 export default api;

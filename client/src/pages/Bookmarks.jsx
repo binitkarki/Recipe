@@ -15,14 +15,29 @@ export default function Bookmarks() {
   const [bookmarks, setBookmarks] = useState([]);
   const navigate = useNavigate();
 
+  // reusable fetch function
+  const fetchBookmarks = () => {
+    BookmarksAPI.list()
+      .then((res) => setBookmarks(res.data))
+      .catch(() => {});
+  };
+
   useEffect(() => {
-    if (!accessToken) { navigate("/"); return; }
-    BookmarksAPI.list().then((res) => setBookmarks(res.data)).catch(() => {});
+    if (!accessToken) {
+      navigate("/");
+      return;
+    }
+    fetchBookmarks();
   }, [accessToken, navigate]);
 
   const removeBookmark = async (bookmarkId) => {
-    await BookmarksAPI.remove(bookmarkId);
-    setBookmarks((prev) => prev.filter((b) => b.id !== bookmarkId));
+    try {
+      await BookmarksAPI.remove(bookmarkId);
+      // refresh list from backend to stay in sync
+      fetchBookmarks();
+    } catch (err) {
+      console.error("Failed to remove bookmark", err);
+    }
   };
 
   return (

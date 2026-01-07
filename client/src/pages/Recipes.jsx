@@ -15,14 +15,19 @@ export default function Recipes() {
   const search = params.get("search") || "";
   const category = params.get("category") || "";
 
-  useEffect(() => {
+  // reusable fetch function
+  const fetchRecipes = () => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/recipes/`, {
         headers: getAuthHeader(),
         params: { search, category },
       })
       .then((res) => setRecipes(res.data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Failed to fetch recipes", err));
+  };
+
+  useEffect(() => {
+    fetchRecipes();
   }, [search, category]);
 
   return (

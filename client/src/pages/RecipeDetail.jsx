@@ -25,12 +25,13 @@ export default function RecipeDetail() {
 
   const incrementedRef = useRef(false);
 
-  useEffect(() => {
-    const load = async () => {
+  // reusable loader
+  const loadRecipe = async () => {
+    try {
       const res = await RecipesAPI.detail(id);
       setRecipe(res.data);
       setLikesCount(res.data.likes_count || 0);
-      setLiked(res.data.liked); 
+      setLiked(res.data.liked);
 
       const c = await CommentsAPI.list(id);
       setComments(c.data);
@@ -49,50 +50,74 @@ export default function RecipeDetail() {
           setRecipe((prev) => (prev ? { ...prev, views: v.data.views } : prev));
         } catch {}
       }
-    };
-    load().catch(() => {});
+    } catch (err) {
+      console.error("Failed to load recipe", err);
+    }
+  };
+
+  useEffect(() => {
+    loadRecipe();
   }, [id, accessToken]);
 
   if (!recipe) return <p>Loading...</p>;
 
   const toggleBookmark = async () => {
     if (!accessToken) return alert("Please log in to bookmark recipes.");
-    if (bookmarked && bookmarkId) {
-      await BookmarksAPI.remove(bookmarkId);
-      setBookmarked(false);
-      setBookmarkId(null);
-    } else {
-      const res = await BookmarksAPI.add(recipe.id);
-      setBookmarked(true);
-      setBookmarkId(res.data.id);
+    try {
+      if (bookmarked && bookmarkId) {
+        await BookmarksAPI.remove(bookmarkId);
+        setBookmarked(false);
+        setBookmarkId(null);
+      } else {
+        const res = await BookmarksAPI.add(recipe.id);
+        setBookmarked(true);
+        setBookmarkId(res.data.id);
+      }
+    } catch (err) {
+      console.error("Failed to toggle bookmark", err);
     }
   };
 
   const toggleLike = async () => {
     if (!accessToken) return alert("Please log in to like recipes.");
-    const res = await RecipesAPI.like(recipe.id);
-    setLiked(res.data.liked);
-    setLikesCount(res.data.likes_count);
+    try {
+      const res = await RecipesAPI.like(recipe.id);
+      setLiked(res.data.liked);
+      setLikesCount(res.data.likes_count);
+    } catch (err) {
+      console.error("Failed to toggle like", err);
+    }
   };
 
   const addComment = async () => {
     if (!accessToken) return alert("Please log in to comment.");
     if (!commentText.trim()) return;
-    const res = await CommentsAPI.add(id, commentText.trim());
-    setComments((prev) => [res.data, ...prev]);
-    setCommentText("");
+    try {
+      const res = await CommentsAPI.add(id, commentText.trim());
+      // refresh comments from backend to stay in sync
+      const c = await CommentsAPI.list(id);
+      setComments(c.data);
+      setCommentText("");
+    } catch (err) {
+      console.error("Failed to add comment", err);
+    }
   };
 
-  const formattedDate = recipe.created_at ? new Date(recipe.created_at).toLocaleDateString() : "";
+  const formattedDate = recipe.created_at
+    ? new Date(recipe.created_at).toLocaleDateString()
+    : "";
 
-  const units = ['cup','cups','tbsp','tablespoon','tablespoons','tsp','teaspoon','teaspoons','g','kg','ml','l','slice','slices','packet','packets'];
+  const units = [
+    "cup","cups","tbsp","tablespoon","tablespoons","tsp","teaspoon","teaspoons",
+    "g","kg","ml","l","slice","slices","packet","packets"
+  ];
   const splitAmount = (line) => {
-    const parts = line.split(' ');
+    const parts = line.split(" ");
     if (parts.length >= 2) {
       const maybeUnit = parts[1].toLowerCase();
-      if (units.includes(maybeUnit)) return [parts.slice(0,2).join(' '), parts.slice(2).join(' ')];
+      if (units.includes(maybeUnit)) return [parts.slice(0, 2).join(" "), parts.slice(2).join(" ")];
     }
-    return [parts[0], parts.slice(1).join(' ')];
+    return [parts[0], parts.slice(1).join(" ")];
   };
 
   return (
@@ -185,7 +210,11 @@ export default function RecipeDetail() {
           {comments.map((c) => (
             <li key={c.id}>
               <div className="comment-header">
-                <img className="avatar" src={`https://ui-avatars.com/api/?name=${c.author}`} alt={c.author} />
+                <img
+                  className="avatar"
+                  src={`https://ui-avatars.com/api/?name=${c.author}`}
+                  alt={c.author}
+                />
                 <strong>{c.author}</strong>
                 <span>{c.created_at ? new Date(c.created_at).toLocaleDateString() : ""}</span>
               </div>
